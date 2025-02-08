@@ -22,7 +22,7 @@ const allowedOrigins = [
   "http://localhost:5173",
   "https://doms-backend.vercel.app",
   "https://9hj1322k-5173.inc1.devtunnels.ms",
-  "https://doms-front-end.vercel.app",
+  "https://doms-site.vercel.app/",
 ];
 
 app.use(
