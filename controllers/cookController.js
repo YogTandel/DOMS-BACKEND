@@ -125,8 +125,8 @@ const markAttendance = async (req, res) => {
       req.body
     );
 
-    const { status } = req.body;
-    const today = new Date().toISOString().split("T")[0]; // Get current date (YYYY-MM-DD)
+    const { status, date } = req.body; // Use the selected date from frontend
+    const formattedDate = new Date(date).toISOString().split("T")[0];
 
     const cook = await Cook.findById(req.params._id);
     if (!cook) {
@@ -136,23 +136,22 @@ const markAttendance = async (req, res) => {
         .json({ status: "error", message: "❌ Cook not found!" });
     }
 
-    // Check if attendance is already marked for today
-    const alreadyMarked = cook.attendance.some(
-      (record) => record.date.toISOString().split("T")[0] === today
+    // Check if attendance for the selected date already exists
+    const existingAttendanceIndex = cook.attendance.findIndex(
+      (record) => record.date.toISOString().split("T")[0] === formattedDate
     );
 
-    if (alreadyMarked) {
-      return res.status(400).json({
-        status: "error",
-        message: "⚠️ Attendance already marked for today!",
-      });
+    if (existingAttendanceIndex !== -1) {
+      // Update existing attendance record
+      cook.attendance[existingAttendanceIndex].status = status;
+    } else {
+      // Add a new attendance record for the selected date
+      cook.attendance.push({ date: new Date(date), status });
     }
 
-    // Mark attendance if not already marked
-    cook.attendance.push({ date: new Date(), status });
     await cook.save();
 
-    console.log("✅ Attendance marked:", cook.attendance);
+    console.log("✅ Attendance updated:", cook.attendance);
     res.status(200).json({
       status: "success",
       message: "✅ Attendance marked successfully!",
@@ -178,7 +177,7 @@ const getAttendance = async (req, res) => {
         .json({ status: "error", message: "❌ Cook not found!" });
     }
 
-    console.log("✅ Attendance fetched:", cook.attendance.length);
+    console.log("✅ Attendance fetched:", cook.attendance);
     res.status(200).json({ status: "success", data: cook.attendance });
   } catch (error) {
     console.error("❌ [GET ATTENDANCE] Error:", error.message);
