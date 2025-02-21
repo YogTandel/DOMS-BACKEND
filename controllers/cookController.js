@@ -168,6 +168,15 @@ const getAttendance = async (req, res) => {
     console.log(
       `🟢 [GET ATTENDANCE] Fetching attendance for cook ID: ${req.params._id}`
     );
+
+    // Validate if _id is a proper MongoDB ObjectId
+    if (!mongoose.Types.ObjectId.isValid(req.params._id)) {
+      console.log("🔴 Invalid ObjectId format!");
+      return res
+        .status(400)
+        .json({ status: "error", message: "❌ Invalid cook ID format!" });
+    }
+
     const cook = await Cook.findById(req.params._id);
 
     if (!cook) {
