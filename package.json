@@ -31,6 +31,7 @@
     "mongodb": "^6.12.0",
     "mongoose": "^8.9.5",
     "nodemailer": "^6.9.16",
+    "webidl2js": "^18.0.0",
     "whatwg-url": "^14.1.1"
   }
 }
