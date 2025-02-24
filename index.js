@@ -23,6 +23,7 @@ const allowedOrigins = [
   "http://localhost:3000",
   "http://localhost:5173",
   "https://doms-backend.vercel.app",
+  "https://backend-doms.vercel.app",
   "https://doms-yog.vercel.app",
 ];
 
