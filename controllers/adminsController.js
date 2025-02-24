@@ -201,6 +201,7 @@ const AdminsSignin = async (req, res) => {
       success: true,
       message: "✅ Admin logged in successfully",
       token, // ✅ Send token for frontend usage
+      role: req.session.user?.role,
       session: req.session.user, // ✅ Send session data to frontend
     });
   } catch (error) {
@@ -215,9 +216,9 @@ const AdminsSignin = async (req, res) => {
 const AdminsSignout = async (req, res) => {
   try {
     console.log("Request Cookies:", req.cookies);
+    const sessionId = req.session.id; // Get session ID before destroying
 
-    // Destroy the session to log out the admin
-    req.session.destroy((err) => {
+    req.session.destroy(async (err) => {
       if (err) {
         console.error("❌ Error during admin signout:", err);
         return res.status(500).json({
@@ -226,11 +227,21 @@ const AdminsSignout = async (req, res) => {
         });
       }
 
-      // Clear the session cookie from the browser
+      // Manually remove session from MongoDB
+      if (req.sessionStore) {
+        req.sessionStore.destroy(sessionId, (err) => {
+          if (err) {
+            console.error("❌ Error removing session from store:", err);
+          } else {
+            console.log("✅ Session removed from database.");
+          }
+        });
+      }
+
       res.clearCookie("connect.sid", {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
-        sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax", // "None" for HTTPS, "Lax" for local dev
+        sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
       });
 
       console.log("✅ Admin logged out successfully.");
