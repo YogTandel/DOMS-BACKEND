@@ -9,7 +9,6 @@ const {
   hmacProcess,
 } = require("../utils/hashing.js");
 const { transport } = require("../Middlewares/sendMail.js");
-const { now } = require("mongoose");
 
 const UserSignup = async (req, res) => {
   let { userName, email, password, confirmPassword } = req.body;
@@ -176,6 +175,7 @@ const UserSigin = async (req, res) => {
       success: true,
       message: "👍 Signin successful!",
       token,
+      role: req.session.user?.role || "customer",
       session: req.session.user,
     });
   } catch (error) {
@@ -190,13 +190,25 @@ const UserSigin = async (req, res) => {
 const UserSignout = async (req, res) => {
   try {
     console.log("Request Cookies:", req.cookies);
+    const sessionId = req.session.id; // Get session ID before destroying
 
-    req.session.destroy((err) => {
+    req.session.destroy(async (err) => {
       if (err) {
         console.error("❌ Error during Customer signout:", err);
         return res.status(500).json({
           success: false,
           message: "❌ Error during Customer signout",
+        });
+      }
+
+      // Manually remove session from MongoDB
+      if (req.sessionStore) {
+        req.sessionStore.destroy(sessionId, (err) => {
+          if (err) {
+            console.error("❌ Error removing session from store:", err);
+          } else {
+            console.log("✅ Session removed from database.");
+          }
         });
       }
 
@@ -727,7 +739,6 @@ const displayAllCustomer = async (req, res) => {
     });
   }
 };
-
 
 module.exports = {
   UserSignup,
