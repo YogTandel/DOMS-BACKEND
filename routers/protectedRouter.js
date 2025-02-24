@@ -5,8 +5,7 @@ const SECRET_KEY = process.env.JWT_SECRET_KEY;
 
 // ✅ Verify Token API (Read from Cookies)
 router.get("/auth/verifyToken", (req, res) => {
-  const token = req.cookies.token; // ✅ Read from cookies
-  // const token = req.cookies.token || req.headers.authorization?.split(" ")[1]; // ✅ Read from cookies or headers
+  const token = req.cookies.token || req.headers.authorization?.split(" ")[1]; // Read from cookies or headers
 
   if (!token) {
     return res
@@ -24,10 +23,16 @@ router.get("/auth/verifyToken", (req, res) => {
 
     console.log("✅ Token Verified Successfully:", decoded);
 
-    return res.json({
-      success: true,
-      user: decoded, // Send back user info for frontend to store
-    });
+    // Role-based response
+    if (decoded.role === "customer") {
+      return res.json({ success: true, role: "customer", user: decoded });
+    } else if (decoded.role) {
+      return res.json({ success: true, role: decoded.role, user: decoded }); // Dynamic admin role
+    } else {
+      return res
+        .status(403)
+        .json({ success: false, message: "❌ Role Not Assigned" });
+    }
   });
 });
 
@@ -35,7 +40,7 @@ router.get("/auth/session", (req, res) => {
   if (req.session.user) {
     return res.json({
       success: true,
-      session: req.session.user, 
+      session: req.session.user,
     });
   }
   return res.json({ success: false, message: "❌ No active session" });
