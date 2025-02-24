@@ -63,9 +63,9 @@ app.use(
     saveUninitialized: false,
     store: store,
     cookie: {
-      secure: false, // ✅ Only secure:true in production (Vercel)
+      secure: true, // ✅ Only secure:true in production (Vercel)
       httpOnly: true,
-      sameSite: "Lax", // ✅ Required for cross-origin cookies
+      sameSite: "None", // ✅ Required for cross-origin cookies
       maxAge: 1000 * 60 * 60 * 24, // 1 Day
     },
   })
