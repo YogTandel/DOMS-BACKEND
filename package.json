@@ -30,6 +30,7 @@
     "jsonwebtoken": "^9.0.2",
     "mongodb": "^6.12.0",
     "mongoose": "^8.9.5",
-    "nodemailer": "^6.9.16"
+    "nodemailer": "^6.9.16",
+    "whatwg-url": "^14.1.1"
   }
 }
